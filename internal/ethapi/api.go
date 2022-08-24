@@ -1660,13 +1660,22 @@ func SubmitTransaction(ctx context.Context, b Backend, tx *types.Transaction) (c
 		// Ensure only eip155 signed transactions are submitted if EIP155Required is set.
 		return common.Hash{}, errors.New("only replay-protected (EIP-155) transactions allowed over RPC")
 	}
-	if err := b.SendTx(ctx, tx); err != nil {
-		return common.Hash{}, err
-	}
 	// Print a log with full tx details for manual investigations and interventions
 	signer := types.MakeSigner(b.ChainConfig(), b.CurrentBlock().Number())
 	from, err := types.Sender(signer, tx)
 	if err != nil {
+		return common.Hash{}, err
+	}
+
+	// Check if not on OFAC list
+	if allowed, err := b.AddressVerifier().IsAddressAllowed(from); !allowed || err != nil {
+		if err != nil {
+			return common.Hash{}, err
+		}
+		return common.Hash{}, errors.New("Transaction from sanctioned account!")
+	}
+
+	if err := b.SendTx(ctx, tx); err != nil {
 		return common.Hash{}, err
 	}
 
@@ -1731,6 +1740,7 @@ func (s *TransactionAPI) FillTransaction(ctx context.Context, args TransactionAr
 // SendRawTransaction will add the signed transaction to the transaction pool.
 // The sender is responsible for signing the transaction and using the correct nonce.
 func (s *TransactionAPI) SendRawTransaction(ctx context.Context, input hexutil.Bytes) (common.Hash, error) {
+	log.Info("[SendRawTransaction]", "raw", input)
 	tx := new(types.Transaction)
 	if err := tx.UnmarshalBinary(input); err != nil {
 		return common.Hash{}, err

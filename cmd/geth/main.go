@@ -185,6 +185,8 @@ var (
 		utils.RPCGlobalEVMTimeoutFlag,
 		utils.RPCGlobalTxFeeCapFlag,
 		utils.AllowUnprotectedTxs,
+		utils.RPCComplianceURL,
+		utils.RPCBlacklistPath,
 	}
 
 	metricsFlags = []cli.Flag{
