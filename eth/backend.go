@@ -242,7 +242,13 @@ func New(stack *node.Node, config *ethconfig.Config) (*Ethereum, error) {
 	eth.miner = miner.New(eth, &config.Miner, chainConfig, eth.EventMux(), eth.engine, eth.isLocalBlock)
 	eth.miner.SetExtra(makeExtraData(config.Miner.ExtraData))
 
-	eth.APIBackend = &EthAPIBackend{stack.Config().ExtRPCEnabled(), stack.Config().AllowUnprotectedTxs, eth, nil}
+	log.Info("Creating Address Verifier", "RPCComplianceURL", eth.config.RPCComplianceURL, "ComplianceBlacklistPath", eth.config.RPCComplianceBlacklistPath)
+	addressVerifier, err := core.NewAddressVerifier(eth.config.RPCComplianceBlacklistPath, eth.config.RPCComplianceURL)
+	if err != nil {
+		return nil, err
+	}
+
+	eth.APIBackend = &EthAPIBackend{stack.Config().ExtRPCEnabled(), stack.Config().AllowUnprotectedTxs, eth, nil, addressVerifier}
 	if eth.APIBackend.allowUnprotectedTxs {
 		log.Info("Unprotected transactions allowed")
 	}

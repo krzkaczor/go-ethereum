@@ -780,6 +780,16 @@ var (
 		Usage:    "Allow for unprotected (non EIP155 signed) transactions to be submitted via RPC",
 		Category: flags.APICategory,
 	}
+	RPCComplianceURL = &cli.StringFlag{
+		Name:     "rpc.compliance-api-url",
+		Usage:    "URL to API returning address info",
+		Category: flags.APICategory,
+	}
+	RPCBlacklistPath = &cli.StringFlag{
+		Name:     "rpc.blacklist",
+		Usage:    "Path to json file containg blacklisted addresses",
+		Category: flags.APICategory,
+	}
 
 	// Network Settings
 	MaxPeersFlag = &cli.IntFlag{
@@ -1849,6 +1859,12 @@ func SetEthConfig(ctx *cli.Context, stack *node.Node, cfg *ethconfig.Config) {
 	}
 	if ctx.IsSet(RPCGlobalTxFeeCapFlag.Name) {
 		cfg.RPCTxFeeCap = ctx.Float64(RPCGlobalTxFeeCapFlag.Name)
+	}
+	if ctx.IsSet(RPCComplianceURL.Name) {
+		cfg.RPCComplianceURL = ctx.String(RPCComplianceURL.Name)
+	}
+	if ctx.IsSet(RPCBlacklistPath.Name) {
+		cfg.RPCComplianceBlacklistPath = ctx.String(RPCBlacklistPath.Name)
 	}
 	if ctx.IsSet(NoDiscoverFlag.Name) {
 		cfg.EthDiscoveryURLs, cfg.SnapDiscoveryURLs = []string{}, []string{}

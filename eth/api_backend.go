@@ -46,6 +46,7 @@ type EthAPIBackend struct {
 	allowUnprotectedTxs bool
 	eth                 *Ethereum
 	gpo                 *gasprice.Oracle
+	addressVerifier     *core.AddressVerifier
 }
 
 // ChainConfig returns the active chain configuration.
@@ -330,6 +331,10 @@ func (b *EthAPIBackend) RPCGasCap() uint64 {
 
 func (b *EthAPIBackend) RPCEVMTimeout() time.Duration {
 	return b.eth.config.RPCEVMTimeout
+}
+
+func (b *EthAPIBackend) AddressVerifier() *core.AddressVerifier {
+	return b.addressVerifier
 }
 
 func (b *EthAPIBackend) RPCTxFeeCap() float64 {

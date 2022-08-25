@@ -45,6 +45,7 @@ type LesApiBackend struct {
 	allowUnprotectedTxs bool
 	eth                 *LightEthereum
 	gpo                 *gasprice.Oracle
+	addressVerifier     *core.AddressVerifier
 }
 
 func (b *LesApiBackend) ChainConfig() *params.ChainConfig {
@@ -285,6 +286,10 @@ func (b *LesApiBackend) ExtRPCEnabled() bool {
 
 func (b *LesApiBackend) UnprotectedAllowed() bool {
 	return b.allowUnprotectedTxs
+}
+
+func (b *LesApiBackend) AddressVerifier() *core.AddressVerifier {
+	return b.addressVerifier
 }
 
 func (b *LesApiBackend) RPCGasCap() uint64 {
